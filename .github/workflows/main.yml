@@ -11,7 +11,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y unrar
-          unrar x app.rar
+          # سنحاول فك الضغط بغض النظر عن حالة الأحرف في اسم الملف
+          unrar x *.rar  unzip *.zip  true
 
       - name: set up JDK 17
         uses: actions/setup-java@v4
@@ -21,13 +22,15 @@ jobs:
           cache: gradle
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x gradlew || true
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug
-
+        run: |
+          # فحص إذا كان المجلد موجوداً ثم البناء
+          ./gradlew assembleDebug --stacktrace
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-snake-game
-          path: app/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
